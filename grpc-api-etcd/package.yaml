@@ -1,0 +1,28 @@
+name:                grpc-api-etcd
+version:             0.1.0.0
+github:              "lucasdicioccio/grpc-api-etcd"
+license:             BSD3
+author:              "Lucas DiCioccio"
+maintainer:          "lucas@dicioccio.fr"
+copyright:           "2018 Lucas DiCioccio"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+synopsis:            Generated messages and instances for etcd gRPC.
+category:            GRPC
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/lucasdicioccio/grpc-api-etcd#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- proto-lens
+- proto-lens-protoc
+
+library:
+  source-dirs: gen
