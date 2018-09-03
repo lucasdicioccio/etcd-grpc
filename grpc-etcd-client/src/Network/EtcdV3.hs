@@ -12,6 +12,7 @@ module Network.EtcdV3
     , rangeResponsePairs
     -- * Granting leases.
     , grantLease
+    , GrantedLease
     , fromLeaseGrantResponse
     , keepAlive
     -- * Writing.
