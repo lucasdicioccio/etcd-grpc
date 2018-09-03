@@ -2,7 +2,9 @@
 
 -- | Simple lib to access Etcd over gRPC.
 module Network.EtcdV3
-    ( etcdClientConfigSimple
+    (
+    -- * Generalities.
+      etcdClientConfigSimple
     , EtcdQuery
     -- * Reading.
     , KeyRange(..)
@@ -59,7 +61,12 @@ data KeyRange
   deriving (Show, Eq, Ord)
 
 -- | Lookup a range of values
-range :: GrpcClient -> KeyRange -> EtcdQuery RangeResponse
+range
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> KeyRange
+  -- ^ Looked-up range.
+  -> EtcdQuery RangeResponse
 range grpc r = preview unaryOutput <$>
     rawUnary (RPC :: RPC KV "range") grpc (def & key .~ k0 & rangeEnd .~ kend)
   where
@@ -71,6 +78,10 @@ range grpc r = preview unaryOutput <$>
 --
 -- @ x <- range grpc (Prefixed "/some-dir/")
 -- @ print $ x ^.. _Just . rangePairs
+--
+-- Note that Etcd RangeResponse is a rich object, please refer to Etcd
+-- documentation to understand what you will miss out (e.g., whether the list
+-- is complete or not).
 rangeResponsePairs
   :: Getting (Endo [(ByteString, ByteString)]) RangeResponse (ByteString, ByteString)
 rangeResponsePairs = kvs . traverse . to (\x -> (x ^. key, x ^. value))
@@ -86,7 +97,12 @@ rangePairForRangeQuery (Prefixed k) = (k, kPlus1)
     kPlus1 = if C8.null rest then "\NUL" else C8.reverse $ C8.cons (succ (C8.head rest)) (C8.drop 1 rest)
 
 -- | Asks for a lease of a given duration.
-grantLease :: GrpcClient -> Int64 -> EtcdQuery LeaseGrantResponse
+grantLease
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> Int64
+  -- ^ TTL for the lease.
+  -> EtcdQuery LeaseGrantResponse
 grantLease grpc seconds =
     preview unaryOutput <$> rawUnary (RPC :: RPC Lease "leaseGrant") grpc (def & ttl .~ seconds)
 
@@ -103,7 +119,12 @@ fromLeaseGrantResponse :: LeaseGrantResponse -> GrantedLease
 fromLeaseGrantResponse r = GrantedLease $ r ^. EtcdPB.id
 
 -- | Keep a lease alive.
-keepAlive :: GrpcClient -> GrantedLease -> EtcdQuery LeaseKeepAliveResponse
+keepAlive
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> GrantedLease
+  -- ^ A previously-granted lease.
+  -> EtcdQuery LeaseKeepAliveResponse
 keepAlive grpc (GrantedLease leaseID) =
     preview unaryOutput <$> rawUnary (RPC :: RPC Lease "leaseKeepAlive") grpc (def & EtcdPB.id .~ leaseID)
 
@@ -114,6 +135,7 @@ put
   -> ByteString
   -- ^ Key.
   -> ByteString
+
   -- ^ Value.
   -> Maybe GrantedLease
   -- ^ Lease on the key.
