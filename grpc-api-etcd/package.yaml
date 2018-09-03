@@ -21,8 +21,8 @@ description:         Please see the README on GitHub at <https://github.com/luca
 
 dependencies:
 - base >= 4.7 && < 5
-- proto-lens
-- proto-lens-protoc
+- proto-lens >= 0.3 && < 0.4
+- proto-lens-protoc >= 0.3 && < 0.4
 
 library:
   source-dirs: gen
