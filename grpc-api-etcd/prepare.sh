@@ -33,6 +33,7 @@ protoCompile ./etcd/auth/authpb/auth.proto
 protoCompile ./etcd/etcdserver/etcdserverpb/rpc.proto
 protoCompile ./etcd/mvcc/mvccpb/kv.proto
 protoCompile ./etcd/etcdserver/api/v3lock/v3lockpb/v3lock.proto
+protoCompile ./etcd/etcdserver/api/v3election/v3electionpb/v3election.proto
 protoCompile ./google/api/annotations.proto
 protoCompile ./google/api/http.proto
 protoCompile ./gogoproto/gogo.proto
