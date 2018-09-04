@@ -18,13 +18,14 @@ module Network.EtcdV3
     -- * Writing.
     , put
     , delete
+    -- * Locking.
+    , AcquiredLock
+    , fromLockResponse
+    , lock
+    , unlock
     -- * re-exports
     , def
     , module Control.Lens
-    , module EtcdPB
-    , module EtcdRPC
-    , module LockPB
-    , module LockRPC
     ) where
 
 import Control.Lens
@@ -36,8 +37,8 @@ import GHC.Int (Int64)
 import Network.GRPC.Client
 import Network.GRPC.Client.Helpers
 import Network.Socket (HostName, PortNumber)
-import Proto.Etcd.Etcdserver.Etcdserverpb.Rpc as EtcdRPC
-import Proto.Etcd.Etcdserver.Etcdserverpb.Rpc_Fields as EtcdPB
+import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc as EtcdRPC
+import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc_Fields as EtcdPB
 import qualified Proto.Etcd.Etcdserver.Api.V3lock.V3lockpb.V3lock as LockRPC
 import qualified Proto.Etcd.Etcdserver.Api.V3lock.V3lockpb.V3lock_Fields as LockPB
 
@@ -72,9 +73,9 @@ range
   -- ^ Initialized gRPC client.
   -> KeyRange
   -- ^ Looked-up range.
-  -> EtcdQuery RangeResponse
+  -> EtcdQuery EtcdRPC.RangeResponse
 range grpc r = preview unaryOutput <$>
-    rawUnary (RPC :: RPC KV "range") grpc (def & key .~ k0 & rangeEnd .~ kend)
+    rawUnary (RPC :: RPC EtcdRPC.KV "range") grpc (def & EtcdPB.key .~ k0 & EtcdPB.rangeEnd .~ kend)
   where
     (k0, kend) = rangePairForRangeQuery r
 
@@ -89,8 +90,8 @@ range grpc r = preview unaryOutput <$>
 -- documentation to understand what you will miss out (e.g., whether the list
 -- is complete or not).
 rangeResponsePairs
-  :: Getting (Endo [(ByteString, ByteString)]) RangeResponse (ByteString, ByteString)
-rangeResponsePairs = kvs . traverse . to (\x -> (x ^. key, x ^. value))
+  :: Getting (Endo [(ByteString, ByteString)]) EtcdRPC.RangeResponse (ByteString, ByteString)
+rangeResponsePairs = EtcdPB.kvs . traverse . to (\x -> (x ^. EtcdPB.key, x ^. EtcdPB.value))
 
 -- | Internal helper for turning a 'KeyRange' into the start/end queries Etcd
 -- 'range' RPC needs.
@@ -108,9 +109,9 @@ grantLease
   -- ^ Initialized gRPC client.
   -> Int64
   -- ^ TTL for the lease.
-  -> EtcdQuery LeaseGrantResponse
+  -> EtcdQuery EtcdRPC.LeaseGrantResponse
 grantLease grpc seconds =
-    preview unaryOutput <$> rawUnary (RPC :: RPC Lease "leaseGrant") grpc (def & ttl .~ seconds)
+    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseGrant") grpc (def & EtcdPB.ttl .~ seconds)
 
 -- | Opaque lease result.
 --
@@ -121,7 +122,7 @@ instance Show GrantedLease where
   show (GrantedLease n) = "(lease #" <> show n <> ")"
 
 -- | Constructor for 'GrantedLease'.
-fromLeaseGrantResponse :: LeaseGrantResponse -> GrantedLease
+fromLeaseGrantResponse :: EtcdRPC.LeaseGrantResponse -> GrantedLease
 fromLeaseGrantResponse r = GrantedLease $ r ^. EtcdPB.id
 
 -- | Keep a lease alive.
@@ -130,9 +131,9 @@ keepAlive
   -- ^ Initialized gRPC client.
   -> GrantedLease
   -- ^ A previously-granted lease.
-  -> EtcdQuery LeaseKeepAliveResponse
+  -> EtcdQuery EtcdRPC.LeaseKeepAliveResponse
 keepAlive grpc (GrantedLease leaseID) =
-    preview unaryOutput <$> rawUnary (RPC :: RPC Lease "leaseKeepAlive") grpc (def & EtcdPB.id .~ leaseID)
+    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseKeepAlive") grpc (def & EtcdPB.id .~ leaseID)
 
 -- | Put one value.
 put
@@ -145,9 +146,9 @@ put
   -- ^ Value.
   -> Maybe GrantedLease
   -- ^ Lease on the key.
-  -> EtcdQuery PutResponse
+  -> EtcdQuery EtcdRPC.PutResponse
 put grpc k v gl =
-    preview unaryOutput <$> rawUnary (RPC :: RPC KV "put") grpc (def & key .~ k & value .~ v & lease .~ l)
+    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.KV "put") grpc (def & EtcdPB.key .~ k & EtcdPB.value .~ v & EtcdPB.lease .~ l)
   where
     l = maybe 0 _getGrantedLeaseId gl
 
@@ -157,9 +158,9 @@ delete
   -- ^ Initialized gRPC client.
   -> KeyRange
   -- ^ Deleted range.
-  -> EtcdQuery DeleteRangeResponse
+  -> EtcdQuery EtcdRPC.DeleteRangeResponse
 delete grpc r = preview unaryOutput <$>
-    rawUnary (RPC :: RPC KV "deleteRange") grpc (def & key .~ k0 & rangeEnd .~ kend)
+    rawUnary (RPC :: RPC EtcdRPC.KV "deleteRange") grpc (def & EtcdPB.key .~ k0 & EtcdPB.rangeEnd .~ kend)
   where
     (k0, kend) = rangePairForRangeQuery r
 
