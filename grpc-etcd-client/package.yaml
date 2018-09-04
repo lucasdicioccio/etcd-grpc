@@ -1,5 +1,5 @@
 name:                grpc-etcd-client
-version:             0.1.0.1
+version:             0.1.0.2
 github:              "lucasdicioccio/grpc-etcd-client"
 license:             BSD3
 author:              "Lucas DiCioccio"
