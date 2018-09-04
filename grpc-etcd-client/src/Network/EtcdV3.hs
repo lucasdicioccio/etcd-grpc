@@ -17,6 +17,7 @@ module Network.EtcdV3
     , keepAlive
     -- * Writing.
     , put
+    , delete
     -- * re-exports
     , def
     , module Control.Lens
@@ -145,3 +146,15 @@ put grpc k v gl =
     preview unaryOutput <$> rawUnary (RPC :: RPC KV "put") grpc (def & key .~ k & value .~ v & lease .~ l)
   where
     l = maybe 0 _getGrantedLeaseId gl
+
+-- | Delete a range of values.
+delete
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> KeyRange
+  -- ^ Deleted range.
+  -> EtcdQuery DeleteRangeResponse
+delete grpc r = preview unaryOutput <$>
+    rawUnary (RPC :: RPC KV "deleteRange") grpc (def & key .~ k0 & rangeEnd .~ kend)
+  where
+    (k0, kend) = rangePairForRangeQuery r
