@@ -14,7 +14,7 @@ extra-source-files:
 synopsis:            gRPC client for etcd
 category:            Distributed Computing
 
-description:         Please see the README on GitHub at <https://github.com/lucasdicioccio/grpc-etcd-client#readme>
+description:         Please see the README on GitHub at <https://github.com/lucasdicioccio/etcd-grpc#readme>
 
 dependencies:
 - base >= 4.7 && < 5
