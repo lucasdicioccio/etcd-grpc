@@ -23,6 +23,8 @@ module Network.EtcdV3
     , module Control.Lens
     , module EtcdPB
     , module EtcdRPC
+    , module LockPB
+    , module LockRPC
     ) where
 
 import Control.Lens
@@ -36,6 +38,8 @@ import Network.GRPC.Client.Helpers
 import Network.Socket (HostName, PortNumber)
 import Proto.Etcd.Etcdserver.Etcdserverpb.Rpc as EtcdRPC
 import Proto.Etcd.Etcdserver.Etcdserverpb.Rpc_Fields as EtcdPB
+import qualified Proto.Etcd.Etcdserver.Api.V3lock.V3lockpb.V3lock as LockRPC
+import qualified Proto.Etcd.Etcdserver.Api.V3lock.V3lockpb.V3lock_Fields as LockPB
 
 -- | EtcdClient configuration.
 etcdClientConfigSimple :: HostName -> PortNumber -> UseTlsOrNot -> GrpcClientConfig
@@ -158,3 +162,34 @@ delete grpc r = preview unaryOutput <$>
     rawUnary (RPC :: RPC KV "deleteRange") grpc (def & key .~ k0 & rangeEnd .~ kend)
   where
     (k0, kend) = rangePairForRangeQuery r
+
+-- | Opaque lock.
+--
+-- Show instance used for printing purposes only.
+newtype AcquiredLock = AcquiredLock { _getAcquiredLock :: ByteString }
+
+instance Show AcquiredLock where
+  show (AcquiredLock n) = "(lock #" <> show n <> ")"
+
+fromLockResponse :: LockRPC.LockResponse -> AcquiredLock
+fromLockResponse l = AcquiredLock $ l ^. LockPB.key
+
+lock
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> ByteString
+  -- ^ Lock Name
+  -> GrantedLease
+  -- ^ Previously-granted lease that will bound the lifetime of the lock ownership.
+  -> EtcdQuery LockRPC.LockResponse
+lock grpc n (GrantedLease leaseID) = preview unaryOutput <$>
+    rawUnary (RPC :: RPC LockRPC.Lock "lock") grpc (def & LockPB.name .~ n & LockPB.lease .~ leaseID)
+
+unlock
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> AcquiredLock
+  -- ^ Previously-acquired lock.
+  -> EtcdQuery LockRPC.UnlockResponse
+unlock grpc (AcquiredLock k) = preview unaryOutput <$>
+    rawUnary (RPC :: RPC LockRPC.Lock "unlock") grpc (def & LockPB.key .~ k)

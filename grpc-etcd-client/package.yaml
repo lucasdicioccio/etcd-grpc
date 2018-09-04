@@ -23,7 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring
 - data-default-class
-- grpc-api-etcd == 0.1.0.0
+- grpc-api-etcd == 0.1.0.1
 - http2-client
 - http2-client-grpc >= 0.5 && < 0.6
 - lens
