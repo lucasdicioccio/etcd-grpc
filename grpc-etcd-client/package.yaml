@@ -20,16 +20,16 @@ category:            Distributed Computing
 description:         Please see the README on GitHub at <https://github.com/lucasdicioccio/etcd-grpc#readme>
 
 dependencies:
-- base >= 4.7 && < 5
-- bytestring
-- data-default-class
+- base >= 4.11 && < 5
+- bytestring >= 0.10 && < 0.11
+- data-default-class >= 0.1 && < 0.2
 - grpc-api-etcd == 0.1.0.1
-- http2-client
-- http2-client-grpc >= 0.5 && < 0.6
-- lens
-- network
-- proto-lens
-- proto-lens-protoc
+- http2-client >= 0.8 && < 0.9
+- http2-client-grpc >= 0.5.0.2 && < 0.6
+- lens >= 4.16 && < 4.17
+- network >= 2.6 && < 2.7
+- proto-lens >= 0.3 && < 0.4
+- proto-lens-protoc >= 0.3 && < 0.4
 
 default-extensions:
 - DataKinds
