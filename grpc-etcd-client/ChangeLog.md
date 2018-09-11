@@ -1,3 +1,7 @@
 # Changelog for grpc-etcd-client
 
-## Unreleased changes
+## 0.1.1.2
+
+Transactions.
+Watchers.
+Leader election.
