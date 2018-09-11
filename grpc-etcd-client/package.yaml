@@ -25,7 +25,7 @@ dependencies:
 - data-default-class >= 0.1 && < 0.2
 - grpc-api-etcd == 0.1.0.1
 - http2-client >= 0.8 && < 0.9
-- http2-client-grpc >= 0.5.0.2 && < 0.6
+- http2-client-grpc >= 0.5.0.3 && < 0.6
 - lens >= 4.16 && < 4.17
 - network >= 2.6 && < 2.7
 - proto-lens >= 0.3 && < 0.4
