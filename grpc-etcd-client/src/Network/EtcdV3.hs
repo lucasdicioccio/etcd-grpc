@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies     #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 -- | Simple lib to access Etcd over gRPC.
@@ -34,12 +35,16 @@ module Network.EtcdV3
     , rangeReq
     , putReq
     , delReq
+    -- * Watches.
+    , watchForever
+    , watchReq
     -- * re-exports
     , def
     , module Control.Lens
     ) where
 
 import Control.Lens
+import Control.Exception (throwIO)
 import Data.Default.Class (def)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
@@ -47,6 +52,7 @@ import Data.Semigroup (Endo)
 import GHC.Int (Int64)
 import Network.GRPC.Client
 import Network.GRPC.Client.Helpers
+import Network.HTTP2.Client (TooMuchConcurrency)
 import Network.Socket (HostName, PortNumber)
 import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc as EtcdRPC
 import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc_Fields as EtcdPB
@@ -271,3 +277,40 @@ transaction
   -> EtcdQuery EtcdRPC.TxnResponse
 transaction grpc tx = preview unaryOutput <$>
     rawUnary (RPC :: RPC EtcdRPC.KV "txn") grpc tx
+
+-----------------------------------------------------------------------------------------
+
+watchReq
+  :: KeyRange
+  -> [EtcdRPC.WatchCreateRequest'FilterType]
+  -> Int64
+  -> EtcdRPC.WatchRequest
+watchReq r fs wId = def
+  & EtcdPB.maybe'createRequest ?~ (def
+      & EtcdPB.key .~ k0
+      & EtcdPB.rangeEnd .~ kend
+      & EtcdPB.filters .~ fs
+      & EtcdPB.fragment .~ True
+      & EtcdPB.watchId .~ wId)
+  where
+    (k0, kend) = rangePairForRangeQuery r
+
+-- | Starts some watches until an exception occurs.
+--
+-- Alas there is no simple way to discard a watch or stop a stream with this
+-- method as http2-client-grpc does not yet expose an 'OutgoingEvent' to
+-- forcefully close the client stream.
+watchForever
+  :: GrpcClient
+  -> [EtcdRPC.WatchRequest]
+  -> (a -> EtcdRPC.WatchResponse -> IO a)
+  -> a
+  -> IO (Either TooMuchConcurrency ())
+watchForever grpc wcs handle v0 = do
+    fmap (const ()) <$> rawGeneralStream (RPC :: RPC EtcdRPC.Watch "watch") grpc v0 handleWatch wcs registerAndWait
+  where
+    handleWatch v (RecvMessage msg) = handle v msg
+    handleWatch _ (Invalid err)     = throwIO err
+    handleWatch v _                 = pure v
+    registerAndWait (x:xs)          = pure (xs, SendMessage Compressed x)
+    registerAndWait []              = pure ([], Finalize)
