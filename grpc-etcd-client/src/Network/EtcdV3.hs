@@ -47,13 +47,6 @@ etcdClientConfigSimple :: HostName -> PortNumber -> UseTlsOrNot -> GrpcClientCon
 etcdClientConfigSimple host port tls =
     (grpcClientConfigSimple host port tls) { _grpcClientConfigCompression = uncompressed }
 
--- | Helper to unpack an unary gRPC call output.
-unaryOutput
-  :: (Applicative f, Field3 a1 b1 (Either c1 a2) (Either c1 b2)) =>
-     (a2 -> f b2)
-     -> Either c2 (Either c3 a1) -> f (Either c2 (Either c3 b1))
-unaryOutput = _Right . _Right . _3 . _Right
-
 -- | Type alias to simplify type signatures.
 type EtcdQuery a = IO (Maybe a)
 
