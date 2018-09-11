@@ -1,7 +1,27 @@
 {-# LANGUAGE TypeFamilies     #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 -- | Simple lib to access Etcd over gRPC.
+--
+-- This library offers a low-on-details EtcdV3 APIs to easily add distributed
+-- system mechanisms into your Haskell applications.
+--
+-- This library uses the 'Network.GRPC.Client.Helpers' module from
+-- 'http2-client-grpc', which may trade some functionalities for the sake of
+-- simplicity. A typically hidden functionality is the possibility to abort a
+-- query upon a client decision (e.g., while waiting for some Lock).
+--
+-- In general, this library provides some simplification to express the input
+-- messages of RPCs. For instance, the MVCC capabilities are mostly hidden from
+-- the _querying_ side of this library (i.e., queries will requet the latest
+-- revision of a key/value pair). It is pretty simple, however, to reuse the
+-- smart constructor (such as 'putReq' and continue editing values with lens)
+-- and then call the gRPC RPC in a one liner.
+--
+-- A reason for this design is that the intended user of this library will run
+-- a continuous loop to acquire some leadership or monitor some values for the
+-- whole duration of a program.
 module Network.EtcdV3
     (
     -- * Generalities.
@@ -10,6 +30,7 @@ module Network.EtcdV3
     -- * Reading.
     , KeyRange(..)
     , range
+    , rangeReq
     , rangeResponsePairs
     -- * Granting leases.
     , grantLease
@@ -18,7 +39,9 @@ module Network.EtcdV3
     , keepAlive
     -- * Writing.
     , put
+    , putReq
     , delete
+    , delReq
     -- * Locking.
     , AcquiredLock
     , fromLockResponse
@@ -32,12 +55,22 @@ module Network.EtcdV3
     , kvNeq
     , kvGt
     , kvLt
-    , rangeReq
-    , putReq
-    , delReq
     -- * Watches.
     , watchForever
     , watchReq
+    -- * Leader election.
+    , Election(..)
+    , LeaderEvidence
+    , runForLeadership
+    , fromCampaignResponse
+    , proclaim
+    , resign
+    , getProclaimedValue
+    , observeProclaimedValues
+    , proclaimReq
+    , campaignReq
+    , resignReq
+    , leaderReq
     -- * re-exports
     , def
     , module Control.Lens
@@ -49,6 +82,7 @@ import Data.Default.Class (def)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
 import Data.Semigroup (Endo)
+import Data.String (IsString)
 import GHC.Int (Int64)
 import Network.GRPC.Client
 import Network.GRPC.Client.Helpers
@@ -58,6 +92,8 @@ import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc as EtcdRPC
 import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc_Fields as EtcdPB
 import qualified Proto.Etcd.Etcdserver.Api.V3lock.V3lockpb.V3lock as LockRPC
 import qualified Proto.Etcd.Etcdserver.Api.V3lock.V3lockpb.V3lock_Fields as LockPB
+import qualified Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election as ElectionRPC
+import qualified Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields as ElectionPB
 
 -- | EtcdClient configuration.
 etcdClientConfigSimple :: HostName -> PortNumber -> UseTlsOrNot -> GrpcClientConfig
@@ -163,7 +199,6 @@ put
   -> ByteString
   -- ^ Key.
   -> ByteString
-
   -- ^ Value.
   -> Maybe GrantedLease
   -- ^ Lease on the key.
@@ -257,6 +292,16 @@ kvLt k v = def
   & EtcdPB.key    .~ k
   & EtcdPB.value  .~ v
 
+-- | Smart constructor, to use in conjunction with other smart constructor
+-- which give a small DSL for the common cases. The proto-lens generated code
+-- is fine but requires qualified imports to avoid namespace clashes.
+--
+-- Example use:
+-- @
+-- putStrLn $ Data.ProtoLens.showMessage$ successTxnReq [kvEq "hello" "world"] [putReq "txn-written" "1234" Nothing] [] []
+-- compare { target: VALUE key: "hello" value: "world" }
+-- success { request_put { key: "txn-written" value: "1234" } }
+-- @
 successTxnReq
   :: [EtcdRPC.Compare]
   -> [EtcdRPC.PutRequest]
@@ -271,9 +316,14 @@ successTxnReq cmps rps drrs rrs = def
         , [ def & EtcdPB.maybe'requestRange ?~ rr | rr <- rrs ]
         ])
 
+-- | Issue a transaction request, performing many modifications at once.
+--
+-- See 'successTxnReq' for a smart constructor of transaction request.
 transaction
   :: GrpcClient
+  -- ^ Initialized gRPC client.
   -> EtcdRPC.TxnRequest
+  -- ^ Transaction
   -> EtcdQuery EtcdRPC.TxnResponse
 transaction grpc tx = preview unaryOutput <$>
     rawUnary (RPC :: RPC EtcdRPC.KV "txn") grpc tx
@@ -300,11 +350,17 @@ watchReq r fs wId = def
 -- Alas there is no simple way to discard a watch or stop a stream with this
 -- method as http2-client-grpc does not yet expose an 'OutgoingEvent' to
 -- forcefully close the client stream.
+--
+-- See 'watchReq' for building watch requests.
 watchForever
   :: GrpcClient
+  -- ^ Initialized gRPC client.
   -> [EtcdRPC.WatchRequest]
+  -- ^ List of watches to register.
   -> (a -> EtcdRPC.WatchResponse -> IO a)
+  -- ^ State-passing handler for handling watches.
   -> a
+  -- ^ Initial state.
   -> IO (Either TooMuchConcurrency ())
 watchForever grpc wcs handle v0 = do
     fmap (const ()) <$> rawGeneralStream (RPC :: RPC EtcdRPC.Watch "watch") grpc v0 handleWatch wcs registerAndWait
@@ -314,3 +370,113 @@ watchForever grpc wcs handle v0 = do
     handleWatch v _                 = pure v
     registerAndWait (x:xs)          = pure (xs, SendMessage Compressed x)
     registerAndWait []              = pure ([], Finalize)
+
+-----------------------------------------------------------------------------------------
+
+-- | A newtype around ByteString to speak about election names.
+newtype Election = Election { _getElectionName :: ByteString }
+  deriving (Show, Eq, Ord, IsString)
+
+-- | An Opaque type around returned leader key.
+newtype LeaderEvidence = LeaderEvidence { _getLeaderKey :: ElectionRPC.LeaderKey }
+
+-- | Waits until elected.
+runForLeadership
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> Election
+  -- ^ An election to run for.
+  -> GrantedLease
+  -- ^ A lease delimiting the leadership duration.
+  -> ByteString
+  -- ^ The initially-proclaimed value.
+  -> EtcdQuery ElectionRPC.CampaignResponse
+runForLeadership grpc el gl v = preview unaryOutput <$>
+    rawUnary (RPC :: RPC ElectionRPC.Election "campaign") grpc (campaignReq el gl v)
+
+campaignReq
+  :: Election
+  -> GrantedLease
+  -> ByteString
+  -> ElectionRPC.CampaignRequest
+campaignReq el gl v = def
+  & ElectionPB.name .~ _getElectionName el
+  & ElectionPB.lease .~ _getGrantedLeaseId gl
+  & ElectionPB.value .~ v
+
+-- | Helper to retrieve an evidence that we are a leader from a CampaignResponse.
+fromCampaignResponse :: ElectionRPC.CampaignResponse -> Maybe LeaderEvidence
+fromCampaignResponse cr = cr ^? ElectionPB.leader . to LeaderEvidence
+
+-- | As a leader, proclaim a new value.
+--
+-- Observers will be notified.
+proclaim
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> LeaderEvidence
+  -- ^ Proof of recent successful participation to a leader-election.
+  -> ByteString
+  -- ^ New value to proclaim.
+  -> EtcdQuery ElectionRPC.ProclaimResponse
+proclaim grpc le v = preview unaryOutput <$>
+    rawUnary (RPC :: RPC ElectionRPC.Election "proclaim") grpc (proclaimReq le v)
+
+proclaimReq
+  :: LeaderEvidence
+  -> ByteString
+  -> ElectionRPC.ProclaimRequest
+proclaimReq le v = def
+  & ElectionPB.leader .~ _getLeaderKey le
+  & ElectionPB.value .~ v
+
+-- | Resign from leadership.
+--
+-- If other campaigners are waiting for the role, they will get elected.
+resign
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> LeaderEvidence
+  -- ^ Proof of recent successful participation to a leader-election.
+  -> EtcdQuery ElectionRPC.ResignResponse
+resign grpc le = preview unaryOutput <$>
+    rawUnary (RPC :: RPC ElectionRPC.Election "resign") grpc (resignReq le)
+
+resignReq
+  :: LeaderEvidence
+  -> ElectionRPC.ResignRequest
+resignReq le = def
+  & ElectionPB.leader .~ _getLeaderKey le
+
+-- | As a bystander of an election, get the proclaimed value.
+getProclaimedValue
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> Election
+  -- ^ Election to read value from.
+  -> EtcdQuery ElectionRPC.LeaderResponse
+getProclaimedValue grpc el = preview unaryOutput <$>
+    rawUnary (RPC :: RPC ElectionRPC.Election "leader") grpc (leaderReq el)
+
+leaderReq
+  :: Election
+  -> ElectionRPC.LeaderRequest
+leaderReq el = def
+  & ElectionPB.name .~ _getElectionName el
+
+-- | As a bystander of an election, get notified for every proclaimed value.
+observeProclaimedValues
+  :: GrpcClient
+  -- ^ Initialized gRPC client.
+  -> Election
+  -- ^ Election to wait for values from.
+  -> (a -> ElectionRPC.LeaderResponse -> IO a)
+  -- ^ State-passing handler for handling iteratively updated proclaimed values.
+  -> a
+  -- ^ An initial state.
+  -> IO (Either TooMuchConcurrency a)
+observeProclaimedValues grpc el handler v0 = fmap (view _1) <$>
+    rawStreamServer (RPC :: RPC ElectionRPC.Election "observe") grpc v0 (observeReq el) handle2
+  where
+    observeReq = leaderReq
+    handle2 v1 _ msg = handler v1 msg
