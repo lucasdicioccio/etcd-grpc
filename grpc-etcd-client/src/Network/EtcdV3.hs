@@ -23,6 +23,17 @@ module Network.EtcdV3
     , fromLockResponse
     , lock
     , unlock
+    -- * Transactions.
+    , transaction
+    -- * A Few Smart Constructors To Make Life Easy When Building Transactions.
+    , successTxnReq
+    , kvEq
+    , kvNeq
+    , kvGt
+    , kvLt
+    , rangeReq
+    , putReq
+    , delReq
     -- * re-exports
     , def
     , module Control.Lens
@@ -50,6 +61,8 @@ etcdClientConfigSimple host port tls =
 -- | Type alias to simplify type signatures.
 type EtcdQuery a = IO (Maybe a)
 
+-----------------------------------------------------------------------------------------
+
 -- | Data type to unify the three addressing schemes in etcd.
 --
 -- See 'range'.
@@ -68,7 +81,12 @@ range
   -- ^ Looked-up range.
   -> EtcdQuery EtcdRPC.RangeResponse
 range grpc r = preview unaryOutput <$>
-    rawUnary (RPC :: RPC EtcdRPC.KV "range") grpc (def & EtcdPB.key .~ k0 & EtcdPB.rangeEnd .~ kend)
+    rawUnary (RPC :: RPC EtcdRPC.KV "range") grpc (rangeReq r)
+
+rangeReq :: KeyRange -> EtcdRPC.RangeRequest
+rangeReq r = def
+  & EtcdPB.key .~ k0
+  & EtcdPB.rangeEnd .~ kend
   where
     (k0, kend) = rangePairForRangeQuery r
 
@@ -95,6 +113,8 @@ rangePairForRangeQuery (Prefixed k) = (k, kPlus1)
   where
     rest = C8.dropWhile (== '\xff') $ C8.reverse k
     kPlus1 = if C8.null rest then "\NUL" else C8.reverse $ C8.cons (succ (C8.head rest)) (C8.drop 1 rest)
+
+-----------------------------------------------------------------------------------------
 
 -- | Asks for a lease of a given duration.
 grantLease
@@ -128,6 +148,8 @@ keepAlive
 keepAlive grpc (GrantedLease leaseID) =
     preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseKeepAlive") grpc (def & EtcdPB.id .~ leaseID)
 
+-----------------------------------------------------------------------------------------
+
 -- | Put one value.
 put
   :: GrpcClient
@@ -141,9 +163,13 @@ put
   -- ^ Lease on the key.
   -> EtcdQuery EtcdRPC.PutResponse
 put grpc k v gl =
-    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.KV "put") grpc (def & EtcdPB.key .~ k & EtcdPB.value .~ v & EtcdPB.lease .~ l)
-  where
-    l = maybe 0 _getGrantedLeaseId gl
+    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.KV "put") grpc (putReq k v gl)
+
+putReq :: ByteString -> ByteString -> Maybe GrantedLease -> EtcdRPC.PutRequest
+putReq k v gl = def
+  & EtcdPB.key .~ k
+  & EtcdPB.value .~ v
+  & EtcdPB.lease .~ (maybe 0 _getGrantedLeaseId gl)
 
 -- | Delete a range of values.
 delete
@@ -153,9 +179,16 @@ delete
   -- ^ Deleted range.
   -> EtcdQuery EtcdRPC.DeleteRangeResponse
 delete grpc r = preview unaryOutput <$>
-    rawUnary (RPC :: RPC EtcdRPC.KV "deleteRange") grpc (def & EtcdPB.key .~ k0 & EtcdPB.rangeEnd .~ kend)
+    rawUnary (RPC :: RPC EtcdRPC.KV "deleteRange") grpc (delReq r)
+
+delReq :: KeyRange -> EtcdRPC.DeleteRangeRequest
+delReq r = def
+  & EtcdPB.key .~ k0
+  & EtcdPB.rangeEnd .~ kend
   where
     (k0, kend) = rangePairForRangeQuery r
+
+-----------------------------------------------------------------------------------------
 
 -- | Opaque lock.
 --
@@ -187,3 +220,54 @@ unlock
   -> EtcdQuery LockRPC.UnlockResponse
 unlock grpc (AcquiredLock k) = preview unaryOutput <$>
     rawUnary (RPC :: RPC LockRPC.Lock "unlock") grpc (def & LockPB.key .~ k)
+
+-----------------------------------------------------------------------------------------
+
+kvEq :: ByteString -> ByteString -> EtcdRPC.Compare
+kvEq k v = def
+  & EtcdPB.target .~ EtcdRPC.Compare'VALUE
+  & EtcdPB.result .~ EtcdRPC.Compare'EQUAL
+  & EtcdPB.key    .~ k
+  & EtcdPB.value  .~ v
+
+kvNeq :: ByteString -> ByteString -> EtcdRPC.Compare
+kvNeq k v = def
+  & EtcdPB.target .~ EtcdRPC.Compare'VALUE
+  & EtcdPB.result .~ EtcdRPC.Compare'NOT_EQUAL
+  & EtcdPB.key    .~ k
+  & EtcdPB.value  .~ v
+
+kvGt :: ByteString -> ByteString -> EtcdRPC.Compare
+kvGt k v = def
+  & EtcdPB.target .~ EtcdRPC.Compare'VALUE
+  & EtcdPB.result .~ EtcdRPC.Compare'GREATER
+  & EtcdPB.key    .~ k
+  & EtcdPB.value  .~ v
+
+kvLt :: ByteString -> ByteString -> EtcdRPC.Compare
+kvLt k v = def
+  & EtcdPB.target .~ EtcdRPC.Compare'VALUE
+  & EtcdPB.result .~ EtcdRPC.Compare'LESS
+  & EtcdPB.key    .~ k
+  & EtcdPB.value  .~ v
+
+successTxnReq
+  :: [EtcdRPC.Compare]
+  -> [EtcdRPC.PutRequest]
+  -> [EtcdRPC.DeleteRangeRequest]
+  -> [EtcdRPC.RangeRequest]
+  -> EtcdRPC.TxnRequest
+successTxnReq cmps rps drrs rrs = def
+  & EtcdPB.compare .~ cmps
+  & EtcdPB.success .~ (mconcat [
+          [ def & EtcdPB.maybe'requestPut ?~ rp | rp <- rps ]
+        , [ def & EtcdPB.maybe'requestDeleteRange ?~ drr | drr <- drrs ]
+        , [ def & EtcdPB.maybe'requestRange ?~ rr | rr <- rrs ]
+        ])
+
+transaction
+  :: GrpcClient
+  -> EtcdRPC.TxnRequest
+  -> EtcdQuery EtcdRPC.TxnResponse
+transaction grpc tx = preview unaryOutput <$>
+    rawUnary (RPC :: RPC EtcdRPC.KV "txn") grpc tx
