@@ -1,5 +1,5 @@
 name:                grpc-etcd-client
-version:             0.1.1.3
+version:             0.1.2.0
 github:              "lucasdicioccio/grpc-etcd-client"
 license:             BSD3
 author:              "Lucas DiCioccio"
@@ -22,14 +22,13 @@ description:         Please see the README on GitHub at <https://github.com/luca
 dependencies:
 - base >= 4.11 && < 5
 - bytestring >= 0.10 && < 0.11
-- data-default-class >= 0.1 && < 0.2
-- grpc-api-etcd == 0.1.0.1
+- grpc-api-etcd == 0.2.0.0
 - http2-client >= 0.8 && < 0.9
-- http2-client-grpc >= 0.5.0.3 && < 0.6
+- http2-client-grpc >= 0.5.0.4 && < 0.6
 - lens >= 4.16 && < 4.17
 - network >= 2.6 && < 2.7
-- proto-lens >= 0.3 && < 0.4
-- proto-lens-protoc >= 0.3 && < 0.4
+- proto-lens >= 0.4 && < 0.5
+- proto-lens-runtime >= 0.4 && < 0.5
 
 default-extensions:
 - DataKinds

@@ -72,15 +72,15 @@ module Network.EtcdV3
     , resignReq
     , leaderReq
     -- * re-exports
-    , def
+    , defMessage
     , module Control.Lens
     ) where
 
 import Control.Lens
 import Control.Exception (throwIO)
-import Data.Default.Class (def)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as C8
+import Data.ProtoLens.Message (defMessage)
 import Data.Semigroup (Endo)
 import Data.String (IsString)
 import GHC.Int (Int64)
@@ -126,7 +126,7 @@ range grpc r = preview unaryOutput <$>
     rawUnary (RPC :: RPC EtcdRPC.KV "range") grpc (rangeReq r)
 
 rangeReq :: KeyRange -> EtcdRPC.RangeRequest
-rangeReq r = def
+rangeReq r = defMessage
   & EtcdPB.key .~ k0
   & EtcdPB.rangeEnd .~ kend
   where
@@ -166,7 +166,7 @@ grantLease
   -- ^ TTL for the lease.
   -> EtcdQuery EtcdRPC.LeaseGrantResponse
 grantLease grpc seconds =
-    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseGrant") grpc (def & EtcdPB.ttl .~ seconds)
+    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseGrant") grpc (defMessage & EtcdPB.ttl .~ seconds)
 
 -- | Opaque lease result.
 --
@@ -188,7 +188,7 @@ keepAlive
   -- ^ A previously-granted lease.
   -> EtcdQuery EtcdRPC.LeaseKeepAliveResponse
 keepAlive grpc (GrantedLease leaseID) =
-    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseKeepAlive") grpc (def & EtcdPB.id .~ leaseID)
+    preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.Lease "leaseKeepAlive") grpc (defMessage & EtcdPB.id .~ leaseID)
 
 -----------------------------------------------------------------------------------------
 
@@ -207,7 +207,7 @@ put grpc k v gl =
     preview unaryOutput <$> rawUnary (RPC :: RPC EtcdRPC.KV "put") grpc (putReq k v gl)
 
 putReq :: ByteString -> ByteString -> Maybe GrantedLease -> EtcdRPC.PutRequest
-putReq k v gl = def
+putReq k v gl = defMessage
   & EtcdPB.key .~ k
   & EtcdPB.value .~ v
   & EtcdPB.lease .~ (maybe 0 _getGrantedLeaseId gl)
@@ -223,7 +223,7 @@ delete grpc r = preview unaryOutput <$>
     rawUnary (RPC :: RPC EtcdRPC.KV "deleteRange") grpc (delReq r)
 
 delReq :: KeyRange -> EtcdRPC.DeleteRangeRequest
-delReq r = def
+delReq r = defMessage
   & EtcdPB.key .~ k0
   & EtcdPB.rangeEnd .~ kend
   where
@@ -251,7 +251,7 @@ lock
   -- ^ Previously-granted lease that will bound the lifetime of the lock ownership.
   -> EtcdQuery LockRPC.LockResponse
 lock grpc n (GrantedLease leaseID) = preview unaryOutput <$>
-    rawUnary (RPC :: RPC LockRPC.Lock "lock") grpc (def & LockPB.name .~ n & LockPB.lease .~ leaseID)
+    rawUnary (RPC :: RPC LockRPC.Lock "lock") grpc (defMessage & LockPB.name .~ n & LockPB.lease .~ leaseID)
 
 unlock
   :: GrpcClient
@@ -260,33 +260,33 @@ unlock
   -- ^ Previously-acquired lock.
   -> EtcdQuery LockRPC.UnlockResponse
 unlock grpc (AcquiredLock k) = preview unaryOutput <$>
-    rawUnary (RPC :: RPC LockRPC.Lock "unlock") grpc (def & LockPB.key .~ k)
+    rawUnary (RPC :: RPC LockRPC.Lock "unlock") grpc (defMessage & LockPB.key .~ k)
 
 -----------------------------------------------------------------------------------------
 
 kvEq :: ByteString -> ByteString -> EtcdRPC.Compare
-kvEq k v = def
+kvEq k v = defMessage
   & EtcdPB.target .~ EtcdRPC.Compare'VALUE
   & EtcdPB.result .~ EtcdRPC.Compare'EQUAL
   & EtcdPB.key    .~ k
   & EtcdPB.value  .~ v
 
 kvNeq :: ByteString -> ByteString -> EtcdRPC.Compare
-kvNeq k v = def
+kvNeq k v = defMessage
   & EtcdPB.target .~ EtcdRPC.Compare'VALUE
   & EtcdPB.result .~ EtcdRPC.Compare'NOT_EQUAL
   & EtcdPB.key    .~ k
   & EtcdPB.value  .~ v
 
 kvGt :: ByteString -> ByteString -> EtcdRPC.Compare
-kvGt k v = def
+kvGt k v = defMessage
   & EtcdPB.target .~ EtcdRPC.Compare'VALUE
   & EtcdPB.result .~ EtcdRPC.Compare'GREATER
   & EtcdPB.key    .~ k
   & EtcdPB.value  .~ v
 
 kvLt :: ByteString -> ByteString -> EtcdRPC.Compare
-kvLt k v = def
+kvLt k v = defMessage
   & EtcdPB.target .~ EtcdRPC.Compare'VALUE
   & EtcdPB.result .~ EtcdRPC.Compare'LESS
   & EtcdPB.key    .~ k
@@ -308,12 +308,12 @@ successTxnReq
   -> [EtcdRPC.DeleteRangeRequest]
   -> [EtcdRPC.RangeRequest]
   -> EtcdRPC.TxnRequest
-successTxnReq cmps rps drrs rrs = def
+successTxnReq cmps rps drrs rrs = defMessage
   & EtcdPB.compare .~ cmps
   & EtcdPB.success .~ (mconcat [
-          [ def & EtcdPB.maybe'requestPut ?~ rp | rp <- rps ]
-        , [ def & EtcdPB.maybe'requestDeleteRange ?~ drr | drr <- drrs ]
-        , [ def & EtcdPB.maybe'requestRange ?~ rr | rr <- rrs ]
+          [ defMessage & EtcdPB.maybe'requestPut ?~ rp | rp <- rps ]
+        , [ defMessage & EtcdPB.maybe'requestDeleteRange ?~ drr | drr <- drrs ]
+        , [ defMessage & EtcdPB.maybe'requestRange ?~ rr | rr <- rrs ]
         ])
 
 -- | Issue a transaction request, performing many modifications at once.
@@ -335,8 +335,8 @@ watchReq
   -> [EtcdRPC.WatchCreateRequest'FilterType]
   -> Int64
   -> EtcdRPC.WatchRequest
-watchReq r fs wId = def
-  & EtcdPB.maybe'createRequest ?~ (def
+watchReq r fs wId = defMessage
+  & EtcdPB.maybe'createRequest ?~ (defMessage
       & EtcdPB.key .~ k0
       & EtcdPB.rangeEnd .~ kend
       & EtcdPB.filters .~ fs
@@ -399,7 +399,7 @@ campaignReq
   -> GrantedLease
   -> ByteString
   -> ElectionRPC.CampaignRequest
-campaignReq el gl v = def
+campaignReq el gl v = defMessage
   & ElectionPB.name .~ _getElectionName el
   & ElectionPB.lease .~ _getGrantedLeaseId gl
   & ElectionPB.value .~ v
@@ -426,7 +426,7 @@ proclaimReq
   :: LeaderEvidence
   -> ByteString
   -> ElectionRPC.ProclaimRequest
-proclaimReq le v = def
+proclaimReq le v = defMessage
   & ElectionPB.leader .~ _getLeaderKey le
   & ElectionPB.value .~ v
 
@@ -445,7 +445,7 @@ resign grpc le = preview unaryOutput <$>
 resignReq
   :: LeaderEvidence
   -> ElectionRPC.ResignRequest
-resignReq le = def
+resignReq le = defMessage
   & ElectionPB.leader .~ _getLeaderKey le
 
 -- | As a bystander of an election, get the proclaimed value.
@@ -461,7 +461,7 @@ getProclaimedValue grpc el = preview unaryOutput <$>
 leaderReq
   :: Election
   -> ElectionRPC.LeaderRequest
-leaderReq el = def
+leaderReq el = defMessage
   & ElectionPB.name .~ _getElectionName el
 
 -- | As a bystander of an election, get notified for every proclaimed value.
