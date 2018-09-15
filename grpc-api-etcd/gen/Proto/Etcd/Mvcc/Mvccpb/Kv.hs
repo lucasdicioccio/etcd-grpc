@@ -6,36 +6,35 @@
 {-# OPTIONS_GHC -fno-warn-unused-imports#-}
 {-# OPTIONS_GHC -fno-warn-duplicate-exports#-}
 module Proto.Etcd.Mvcc.Mvccpb.Kv
-       (Event(..), Event'EventType(..), Event'EventType(),
-        Event'EventType'UnrecognizedValue, KeyValue(..))
+       (Event(), Event'EventType(..), Event'EventType(),
+        Event'EventType'UnrecognizedValue, KeyValue())
        where
-import qualified Data.ProtoLens.Reexport.Lens.Labels.Prism
+import qualified Data.ProtoLens.Runtime.Control.DeepSeq
+       as Control.DeepSeq
+import qualified Data.ProtoLens.Runtime.Lens.Labels.Prism
        as Lens.Labels.Prism
-import qualified Data.ProtoLens.Reexport.Prelude as Prelude
-import qualified Data.ProtoLens.Reexport.Data.Int as Data.Int
-import qualified Data.ProtoLens.Reexport.Data.Word as Data.Word
-import qualified Data.ProtoLens.Reexport.Data.ProtoLens
+import qualified Data.ProtoLens.Runtime.Prelude as Prelude
+import qualified Data.ProtoLens.Runtime.Data.Int as Data.Int
+import qualified Data.ProtoLens.Runtime.Data.Word as Data.Word
+import qualified Data.ProtoLens.Runtime.Data.ProtoLens
        as Data.ProtoLens
-import qualified
-       Data.ProtoLens.Reexport.Data.ProtoLens.Message.Enum
+import qualified Data.ProtoLens.Runtime.Data.ProtoLens.Message.Enum
        as Data.ProtoLens.Message.Enum
 import qualified
-       Data.ProtoLens.Reexport.Data.ProtoLens.Service.Types
+       Data.ProtoLens.Runtime.Data.ProtoLens.Service.Types
        as Data.ProtoLens.Service.Types
-import qualified Data.ProtoLens.Reexport.Lens.Family2
+import qualified Data.ProtoLens.Runtime.Lens.Family2
        as Lens.Family2
-import qualified Data.ProtoLens.Reexport.Lens.Family2.Unchecked
+import qualified Data.ProtoLens.Runtime.Lens.Family2.Unchecked
        as Lens.Family2.Unchecked
-import qualified Data.ProtoLens.Reexport.Data.Default.Class
-       as Data.Default.Class
-import qualified Data.ProtoLens.Reexport.Data.Text as Data.Text
-import qualified Data.ProtoLens.Reexport.Data.Map as Data.Map
-import qualified Data.ProtoLens.Reexport.Data.ByteString
+import qualified Data.ProtoLens.Runtime.Data.Text as Data.Text
+import qualified Data.ProtoLens.Runtime.Data.Map as Data.Map
+import qualified Data.ProtoLens.Runtime.Data.ByteString
        as Data.ByteString
-import qualified Data.ProtoLens.Reexport.Data.ByteString.Char8
+import qualified Data.ProtoLens.Runtime.Data.ByteString.Char8
        as Data.ByteString.Char8
-import qualified Data.ProtoLens.Reexport.Lens.Labels as Lens.Labels
-import qualified Data.ProtoLens.Reexport.Text.Read as Text.Read
+import qualified Data.ProtoLens.Runtime.Lens.Labels as Lens.Labels
+import qualified Data.ProtoLens.Runtime.Text.Read as Text.Read
 import qualified Proto.Gogoproto.Gogo
 
 {- | Fields :
@@ -50,45 +49,39 @@ data Event = Event{_Event'type' :: !Event'EventType,
                    _Event'kv :: !(Prelude.Maybe KeyValue),
                    _Event'prevKv :: !(Prelude.Maybe KeyValue),
                    _Event'_unknownFields :: !Data.ProtoLens.FieldSet}
-               deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f Event x a, a ~ b) =>
-         Lens.Labels.HasLens f Event Event x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f Event "type'" (Event'EventType)
-         where
+               deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show Event where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' Event "type'" (Event'EventType) where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _Event'type'
                  (\ x__ y__ -> x__{_Event'type' = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f Event "kv" (KeyValue)
-         where
+instance Lens.Labels.HasLens' Event "kv" (KeyValue) where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _Event'kv
                  (\ x__ y__ -> x__{_Event'kv = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f Event "maybe'kv" (Prelude.Maybe KeyValue)
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' Event "maybe'kv"
+           (Prelude.Maybe KeyValue)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _Event'kv
                  (\ x__ y__ -> x__{_Event'kv = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f Event "prevKv" (KeyValue)
-         where
+instance Lens.Labels.HasLens' Event "prevKv" (KeyValue) where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _Event'prevKv
                  (\ x__ y__ -> x__{_Event'prevKv = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f Event "maybe'prevKv"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' Event "maybe'prevKv"
            (Prelude.Maybe KeyValue)
          where
         lensOf' _
@@ -96,11 +89,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _Event'prevKv
                  (\ x__ y__ -> x__{_Event'prevKv = y__}))
               Prelude.id
-instance Data.Default.Class.Default Event where
-        def
-          = Event{_Event'type' = Data.Default.Class.def,
-                  _Event'kv = Prelude.Nothing, _Event'prevKv = Prelude.Nothing,
-                  _Event'_unknownFields = ([])}
 instance Data.ProtoLens.Message Event where
         messageName _ = Data.Text.pack "mvccpb.Event"
         fieldsByTag
@@ -109,7 +97,7 @@ instance Data.ProtoLens.Message Event where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.EnumField ::
                          Data.ProtoLens.FieldTypeDescriptor Event'EventType)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "type'")))
                       :: Data.ProtoLens.FieldDescriptor Event
                 kv__field_descriptor
@@ -117,7 +105,7 @@ instance Data.ProtoLens.Message Event where
                       (Data.ProtoLens.MessageField Data.ProtoLens.MessageType ::
                          Data.ProtoLens.FieldTypeDescriptor KeyValue)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'kv")))
                       :: Data.ProtoLens.FieldDescriptor Event
                 prevKv__field_descriptor
@@ -125,7 +113,7 @@ instance Data.ProtoLens.Message Event where
                       (Data.ProtoLens.MessageField Data.ProtoLens.MessageType ::
                          Data.ProtoLens.FieldTypeDescriptor KeyValue)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'prevKv")))
                       :: Data.ProtoLens.FieldDescriptor Event
               in
@@ -136,6 +124,17 @@ instance Data.ProtoLens.Message Event where
         unknownFields
           = Lens.Family2.Unchecked.lens _Event'_unknownFields
               (\ x__ y__ -> x__{_Event'_unknownFields = y__})
+        defMessage
+          = Event{_Event'type' = Data.ProtoLens.fieldDefault,
+                  _Event'kv = Prelude.Nothing, _Event'prevKv = Prelude.Nothing,
+                  _Event'_unknownFields = ([])}
+instance Control.DeepSeq.NFData Event where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_Event'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_Event'type' x__)
+                   (Control.DeepSeq.deepseq (_Event'kv x__)
+                      (Control.DeepSeq.deepseq (_Event'prevKv x__) (()))))
 data Event'EventType = Event'PUT
                      | Event'DELETE
                      | Event'EventType'Unrecognized !Event'EventType'UnrecognizedValue
@@ -194,10 +193,10 @@ instance Prelude.Enum Event'EventType where
         enumFromTo = Data.ProtoLens.Message.Enum.messageEnumFromTo
         enumFromThen = Data.ProtoLens.Message.Enum.messageEnumFromThen
         enumFromThenTo = Data.ProtoLens.Message.Enum.messageEnumFromThenTo
-instance Data.Default.Class.Default Event'EventType where
-        def = Event'PUT
 instance Data.ProtoLens.FieldDefault Event'EventType where
         fieldDefault = Event'PUT
+instance Control.DeepSeq.NFData Event'EventType where
+        rnf x__ = Prelude.seq x__ (())
 {- | Fields :
 
     * 'Proto.Etcd.Mvcc.Mvccpb.Kv_Fields.key' @:: Lens' KeyValue Data.ByteString.ByteString@
@@ -215,45 +214,44 @@ data KeyValue = KeyValue{_KeyValue'key ::
                          _KeyValue'value :: !Data.ByteString.ByteString,
                          _KeyValue'lease :: !Data.Int.Int64,
                          _KeyValue'_unknownFields :: !Data.ProtoLens.FieldSet}
-                  deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f KeyValue x a, a ~ b) =>
-         Lens.Labels.HasLens f KeyValue KeyValue x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f KeyValue "key" (Data.ByteString.ByteString)
+                  deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show KeyValue where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' KeyValue "key"
+           (Data.ByteString.ByteString)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _KeyValue'key
                  (\ x__ y__ -> x__{_KeyValue'key = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f KeyValue "createRevision" (Data.Int.Int64)
+instance Lens.Labels.HasLens' KeyValue "createRevision"
+           (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _KeyValue'createRevision
                  (\ x__ y__ -> x__{_KeyValue'createRevision = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f KeyValue "modRevision" (Data.Int.Int64)
+instance Lens.Labels.HasLens' KeyValue "modRevision"
+           (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _KeyValue'modRevision
                  (\ x__ y__ -> x__{_KeyValue'modRevision = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f KeyValue "version" (Data.Int.Int64)
+instance Lens.Labels.HasLens' KeyValue "version" (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _KeyValue'version
                  (\ x__ y__ -> x__{_KeyValue'version = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f KeyValue "value"
+instance Lens.Labels.HasLens' KeyValue "value"
            (Data.ByteString.ByteString)
          where
         lensOf' _
@@ -261,23 +259,13 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _KeyValue'value
                  (\ x__ y__ -> x__{_KeyValue'value = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f KeyValue "lease" (Data.Int.Int64)
+instance Lens.Labels.HasLens' KeyValue "lease" (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _KeyValue'lease
                  (\ x__ y__ -> x__{_KeyValue'lease = y__}))
               Prelude.id
-instance Data.Default.Class.Default KeyValue where
-        def
-          = KeyValue{_KeyValue'key = Data.ProtoLens.fieldDefault,
-                     _KeyValue'createRevision = Data.ProtoLens.fieldDefault,
-                     _KeyValue'modRevision = Data.ProtoLens.fieldDefault,
-                     _KeyValue'version = Data.ProtoLens.fieldDefault,
-                     _KeyValue'value = Data.ProtoLens.fieldDefault,
-                     _KeyValue'lease = Data.ProtoLens.fieldDefault,
-                     _KeyValue'_unknownFields = ([])}
 instance Data.ProtoLens.Message KeyValue where
         messageName _ = Data.Text.pack "mvccpb.KeyValue"
         fieldsByTag
@@ -286,7 +274,7 @@ instance Data.ProtoLens.Message KeyValue where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "key")))
                       :: Data.ProtoLens.FieldDescriptor KeyValue
                 createRevision__field_descriptor
@@ -294,7 +282,7 @@ instance Data.ProtoLens.Message KeyValue where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "createRevision")))
                       :: Data.ProtoLens.FieldDescriptor KeyValue
                 modRevision__field_descriptor
@@ -302,7 +290,7 @@ instance Data.ProtoLens.Message KeyValue where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "modRevision")))
                       :: Data.ProtoLens.FieldDescriptor KeyValue
                 version__field_descriptor
@@ -310,7 +298,7 @@ instance Data.ProtoLens.Message KeyValue where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "version")))
                       :: Data.ProtoLens.FieldDescriptor KeyValue
                 value__field_descriptor
@@ -318,7 +306,7 @@ instance Data.ProtoLens.Message KeyValue where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "value")))
                       :: Data.ProtoLens.FieldDescriptor KeyValue
                 lease__field_descriptor
@@ -326,7 +314,7 @@ instance Data.ProtoLens.Message KeyValue where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "lease")))
                       :: Data.ProtoLens.FieldDescriptor KeyValue
               in
@@ -340,3 +328,21 @@ instance Data.ProtoLens.Message KeyValue where
         unknownFields
           = Lens.Family2.Unchecked.lens _KeyValue'_unknownFields
               (\ x__ y__ -> x__{_KeyValue'_unknownFields = y__})
+        defMessage
+          = KeyValue{_KeyValue'key = Data.ProtoLens.fieldDefault,
+                     _KeyValue'createRevision = Data.ProtoLens.fieldDefault,
+                     _KeyValue'modRevision = Data.ProtoLens.fieldDefault,
+                     _KeyValue'version = Data.ProtoLens.fieldDefault,
+                     _KeyValue'value = Data.ProtoLens.fieldDefault,
+                     _KeyValue'lease = Data.ProtoLens.fieldDefault,
+                     _KeyValue'_unknownFields = ([])}
+instance Control.DeepSeq.NFData KeyValue where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_KeyValue'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_KeyValue'key x__)
+                   (Control.DeepSeq.deepseq (_KeyValue'createRevision x__)
+                      (Control.DeepSeq.deepseq (_KeyValue'modRevision x__)
+                         (Control.DeepSeq.deepseq (_KeyValue'version x__)
+                            (Control.DeepSeq.deepseq (_KeyValue'value x__)
+                               (Control.DeepSeq.deepseq (_KeyValue'lease x__) (())))))))

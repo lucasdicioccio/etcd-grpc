@@ -1,5 +1,5 @@
 name:                grpc-api-etcd
-version:             0.1.0.1
+version:             0.2.0.0
 github:              "lucasdicioccio/grpc-api-etcd"
 license:             BSD3
 author:              "Lucas DiCioccio"
@@ -24,8 +24,8 @@ description:         Please see the README on GitHub at <https://github.com/luca
 
 dependencies:
 - base >= 4.7 && < 5
-- proto-lens >= 0.3 && < 0.4
-- proto-lens-protoc >= 0.3 && < 0.4
+- proto-lens >= 0.4 && < 0.5
+- proto-lens-runtime >= 0.4 && < 0.5
 
 library:
   source-dirs: gen

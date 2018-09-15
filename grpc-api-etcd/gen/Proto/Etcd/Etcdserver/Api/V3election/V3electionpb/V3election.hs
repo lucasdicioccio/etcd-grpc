@@ -6,38 +6,36 @@
 {-# OPTIONS_GHC -fno-warn-unused-imports#-}
 {-# OPTIONS_GHC -fno-warn-duplicate-exports#-}
 module Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election
-       (Election(..), CampaignRequest(..), CampaignResponse(..),
-        LeaderKey(..), LeaderRequest(..), LeaderResponse(..),
-        ProclaimRequest(..), ProclaimResponse(..), ResignRequest(..),
-        ResignResponse(..))
+       (Election(..), CampaignRequest(), CampaignResponse(), LeaderKey(),
+        LeaderRequest(), LeaderResponse(), ProclaimRequest(),
+        ProclaimResponse(), ResignRequest(), ResignResponse())
        where
-import qualified Data.ProtoLens.Reexport.Lens.Labels.Prism
+import qualified Data.ProtoLens.Runtime.Control.DeepSeq
+       as Control.DeepSeq
+import qualified Data.ProtoLens.Runtime.Lens.Labels.Prism
        as Lens.Labels.Prism
-import qualified Data.ProtoLens.Reexport.Prelude as Prelude
-import qualified Data.ProtoLens.Reexport.Data.Int as Data.Int
-import qualified Data.ProtoLens.Reexport.Data.Word as Data.Word
-import qualified Data.ProtoLens.Reexport.Data.ProtoLens
+import qualified Data.ProtoLens.Runtime.Prelude as Prelude
+import qualified Data.ProtoLens.Runtime.Data.Int as Data.Int
+import qualified Data.ProtoLens.Runtime.Data.Word as Data.Word
+import qualified Data.ProtoLens.Runtime.Data.ProtoLens
        as Data.ProtoLens
-import qualified
-       Data.ProtoLens.Reexport.Data.ProtoLens.Message.Enum
+import qualified Data.ProtoLens.Runtime.Data.ProtoLens.Message.Enum
        as Data.ProtoLens.Message.Enum
 import qualified
-       Data.ProtoLens.Reexport.Data.ProtoLens.Service.Types
+       Data.ProtoLens.Runtime.Data.ProtoLens.Service.Types
        as Data.ProtoLens.Service.Types
-import qualified Data.ProtoLens.Reexport.Lens.Family2
+import qualified Data.ProtoLens.Runtime.Lens.Family2
        as Lens.Family2
-import qualified Data.ProtoLens.Reexport.Lens.Family2.Unchecked
+import qualified Data.ProtoLens.Runtime.Lens.Family2.Unchecked
        as Lens.Family2.Unchecked
-import qualified Data.ProtoLens.Reexport.Data.Default.Class
-       as Data.Default.Class
-import qualified Data.ProtoLens.Reexport.Data.Text as Data.Text
-import qualified Data.ProtoLens.Reexport.Data.Map as Data.Map
-import qualified Data.ProtoLens.Reexport.Data.ByteString
+import qualified Data.ProtoLens.Runtime.Data.Text as Data.Text
+import qualified Data.ProtoLens.Runtime.Data.Map as Data.Map
+import qualified Data.ProtoLens.Runtime.Data.ByteString
        as Data.ByteString
-import qualified Data.ProtoLens.Reexport.Data.ByteString.Char8
+import qualified Data.ProtoLens.Runtime.Data.ByteString.Char8
        as Data.ByteString.Char8
-import qualified Data.ProtoLens.Reexport.Lens.Labels as Lens.Labels
-import qualified Data.ProtoLens.Reexport.Text.Read as Text.Read
+import qualified Data.ProtoLens.Runtime.Lens.Labels as Lens.Labels
+import qualified Data.ProtoLens.Runtime.Text.Read as Text.Read
 import qualified Proto.Etcd.Etcdserver.Etcdserverpb.Rpc
 import qualified Proto.Etcd.Mvcc.Mvccpb.Kv
 import qualified Proto.Gogoproto.Gogo
@@ -54,13 +52,13 @@ data CampaignRequest = CampaignRequest{_CampaignRequest'name ::
                                        _CampaignRequest'lease :: !Data.Int.Int64,
                                        _CampaignRequest'value :: !Data.ByteString.ByteString,
                                        _CampaignRequest'_unknownFields :: !Data.ProtoLens.FieldSet}
-                         deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f CampaignRequest x a, a ~ b) =>
-         Lens.Labels.HasLens f CampaignRequest CampaignRequest x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignRequest "name"
+                         deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show CampaignRequest where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' CampaignRequest "name"
            (Data.ByteString.ByteString)
          where
         lensOf' _
@@ -68,16 +66,15 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _CampaignRequest'name
                  (\ x__ y__ -> x__{_CampaignRequest'name = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignRequest "lease" (Data.Int.Int64)
+instance Lens.Labels.HasLens' CampaignRequest "lease"
+           (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _CampaignRequest'lease
                  (\ x__ y__ -> x__{_CampaignRequest'lease = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignRequest "value"
+instance Lens.Labels.HasLens' CampaignRequest "value"
            (Data.ByteString.ByteString)
          where
         lensOf' _
@@ -85,13 +82,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _CampaignRequest'value
                  (\ x__ y__ -> x__{_CampaignRequest'value = y__}))
               Prelude.id
-instance Data.Default.Class.Default CampaignRequest where
-        def
-          = CampaignRequest{_CampaignRequest'name =
-                              Data.ProtoLens.fieldDefault,
-                            _CampaignRequest'lease = Data.ProtoLens.fieldDefault,
-                            _CampaignRequest'value = Data.ProtoLens.fieldDefault,
-                            _CampaignRequest'_unknownFields = ([])}
 instance Data.ProtoLens.Message CampaignRequest where
         messageName _ = Data.Text.pack "v3electionpb.CampaignRequest"
         fieldsByTag
@@ -100,7 +90,7 @@ instance Data.ProtoLens.Message CampaignRequest where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "name")))
                       :: Data.ProtoLens.FieldDescriptor CampaignRequest
                 lease__field_descriptor
@@ -108,7 +98,7 @@ instance Data.ProtoLens.Message CampaignRequest where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "lease")))
                       :: Data.ProtoLens.FieldDescriptor CampaignRequest
                 value__field_descriptor
@@ -116,7 +106,7 @@ instance Data.ProtoLens.Message CampaignRequest where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "value")))
                       :: Data.ProtoLens.FieldDescriptor CampaignRequest
               in
@@ -127,6 +117,19 @@ instance Data.ProtoLens.Message CampaignRequest where
         unknownFields
           = Lens.Family2.Unchecked.lens _CampaignRequest'_unknownFields
               (\ x__ y__ -> x__{_CampaignRequest'_unknownFields = y__})
+        defMessage
+          = CampaignRequest{_CampaignRequest'name =
+                              Data.ProtoLens.fieldDefault,
+                            _CampaignRequest'lease = Data.ProtoLens.fieldDefault,
+                            _CampaignRequest'value = Data.ProtoLens.fieldDefault,
+                            _CampaignRequest'_unknownFields = ([])}
+instance Control.DeepSeq.NFData CampaignRequest where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_CampaignRequest'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_CampaignRequest'name x__)
+                   (Control.DeepSeq.deepseq (_CampaignRequest'lease x__)
+                      (Control.DeepSeq.deepseq (_CampaignRequest'value x__) (()))))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.header' @:: Lens' CampaignResponse
@@ -144,22 +147,21 @@ data CampaignResponse = CampaignResponse{_CampaignResponse'header
                                          _CampaignResponse'leader :: !(Prelude.Maybe LeaderKey),
                                          _CampaignResponse'_unknownFields ::
                                          !Data.ProtoLens.FieldSet}
-                          deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f CampaignResponse x a, a ~ b) =>
-         Lens.Labels.HasLens f CampaignResponse CampaignResponse x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignResponse "header"
+                          deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show CampaignResponse where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' CampaignResponse "header"
            (Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _CampaignResponse'header
                  (\ x__ y__ -> x__{_CampaignResponse'header = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignResponse "maybe'header"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' CampaignResponse "maybe'header"
            (Prelude.Maybe
               Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
@@ -168,16 +170,14 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _CampaignResponse'header
                  (\ x__ y__ -> x__{_CampaignResponse'header = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignResponse "leader" (LeaderKey)
+instance Lens.Labels.HasLens' CampaignResponse "leader" (LeaderKey)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _CampaignResponse'leader
                  (\ x__ y__ -> x__{_CampaignResponse'leader = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f CampaignResponse "maybe'leader"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' CampaignResponse "maybe'leader"
            (Prelude.Maybe LeaderKey)
          where
         lensOf' _
@@ -185,11 +185,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _CampaignResponse'leader
                  (\ x__ y__ -> x__{_CampaignResponse'leader = y__}))
               Prelude.id
-instance Data.Default.Class.Default CampaignResponse where
-        def
-          = CampaignResponse{_CampaignResponse'header = Prelude.Nothing,
-                             _CampaignResponse'leader = Prelude.Nothing,
-                             _CampaignResponse'_unknownFields = ([])}
 instance Data.ProtoLens.Message CampaignResponse where
         messageName _ = Data.Text.pack "v3electionpb.CampaignResponse"
         fieldsByTag
@@ -199,7 +194,7 @@ instance Data.ProtoLens.Message CampaignResponse where
                          Data.ProtoLens.FieldTypeDescriptor
                            Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'header")))
                       :: Data.ProtoLens.FieldDescriptor CampaignResponse
                 leader__field_descriptor
@@ -207,7 +202,7 @@ instance Data.ProtoLens.Message CampaignResponse where
                       (Data.ProtoLens.MessageField Data.ProtoLens.MessageType ::
                          Data.ProtoLens.FieldTypeDescriptor LeaderKey)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'leader")))
                       :: Data.ProtoLens.FieldDescriptor CampaignResponse
               in
@@ -217,6 +212,16 @@ instance Data.ProtoLens.Message CampaignResponse where
         unknownFields
           = Lens.Family2.Unchecked.lens _CampaignResponse'_unknownFields
               (\ x__ y__ -> x__{_CampaignResponse'_unknownFields = y__})
+        defMessage
+          = CampaignResponse{_CampaignResponse'header = Prelude.Nothing,
+                             _CampaignResponse'leader = Prelude.Nothing,
+                             _CampaignResponse'_unknownFields = ([])}
+instance Control.DeepSeq.NFData CampaignResponse where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_CampaignResponse'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_CampaignResponse'header x__)
+                   (Control.DeepSeq.deepseq (_CampaignResponse'leader x__) (())))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.name' @:: Lens' LeaderKey Data.ByteString.ByteString@
@@ -230,13 +235,13 @@ data LeaderKey = LeaderKey{_LeaderKey'name ::
                            _LeaderKey'rev :: !Data.Int.Int64,
                            _LeaderKey'lease :: !Data.Int.Int64,
                            _LeaderKey'_unknownFields :: !Data.ProtoLens.FieldSet}
-                   deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f LeaderKey x a, a ~ b) =>
-         Lens.Labels.HasLens f LeaderKey LeaderKey x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderKey "name"
+                   deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show LeaderKey where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' LeaderKey "name"
            (Data.ByteString.ByteString)
          where
         lensOf' _
@@ -244,37 +249,28 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _LeaderKey'name
                  (\ x__ y__ -> x__{_LeaderKey'name = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderKey "key" (Data.ByteString.ByteString)
+instance Lens.Labels.HasLens' LeaderKey "key"
+           (Data.ByteString.ByteString)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _LeaderKey'key
                  (\ x__ y__ -> x__{_LeaderKey'key = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderKey "rev" (Data.Int.Int64)
+instance Lens.Labels.HasLens' LeaderKey "rev" (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _LeaderKey'rev
                  (\ x__ y__ -> x__{_LeaderKey'rev = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderKey "lease" (Data.Int.Int64)
+instance Lens.Labels.HasLens' LeaderKey "lease" (Data.Int.Int64)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _LeaderKey'lease
                  (\ x__ y__ -> x__{_LeaderKey'lease = y__}))
               Prelude.id
-instance Data.Default.Class.Default LeaderKey where
-        def
-          = LeaderKey{_LeaderKey'name = Data.ProtoLens.fieldDefault,
-                      _LeaderKey'key = Data.ProtoLens.fieldDefault,
-                      _LeaderKey'rev = Data.ProtoLens.fieldDefault,
-                      _LeaderKey'lease = Data.ProtoLens.fieldDefault,
-                      _LeaderKey'_unknownFields = ([])}
 instance Data.ProtoLens.Message LeaderKey where
         messageName _ = Data.Text.pack "v3electionpb.LeaderKey"
         fieldsByTag
@@ -283,7 +279,7 @@ instance Data.ProtoLens.Message LeaderKey where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "name")))
                       :: Data.ProtoLens.FieldDescriptor LeaderKey
                 key__field_descriptor
@@ -291,7 +287,7 @@ instance Data.ProtoLens.Message LeaderKey where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "key")))
                       :: Data.ProtoLens.FieldDescriptor LeaderKey
                 rev__field_descriptor
@@ -299,7 +295,7 @@ instance Data.ProtoLens.Message LeaderKey where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "rev")))
                       :: Data.ProtoLens.FieldDescriptor LeaderKey
                 lease__field_descriptor
@@ -307,7 +303,7 @@ instance Data.ProtoLens.Message LeaderKey where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.Int64Field ::
                          Data.ProtoLens.FieldTypeDescriptor Data.Int.Int64)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "lease")))
                       :: Data.ProtoLens.FieldDescriptor LeaderKey
               in
@@ -319,6 +315,20 @@ instance Data.ProtoLens.Message LeaderKey where
         unknownFields
           = Lens.Family2.Unchecked.lens _LeaderKey'_unknownFields
               (\ x__ y__ -> x__{_LeaderKey'_unknownFields = y__})
+        defMessage
+          = LeaderKey{_LeaderKey'name = Data.ProtoLens.fieldDefault,
+                      _LeaderKey'key = Data.ProtoLens.fieldDefault,
+                      _LeaderKey'rev = Data.ProtoLens.fieldDefault,
+                      _LeaderKey'lease = Data.ProtoLens.fieldDefault,
+                      _LeaderKey'_unknownFields = ([])}
+instance Control.DeepSeq.NFData LeaderKey where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_LeaderKey'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_LeaderKey'name x__)
+                   (Control.DeepSeq.deepseq (_LeaderKey'key x__)
+                      (Control.DeepSeq.deepseq (_LeaderKey'rev x__)
+                         (Control.DeepSeq.deepseq (_LeaderKey'lease x__) (())))))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.name' @:: Lens' LeaderRequest Data.ByteString.ByteString@
@@ -326,13 +336,13 @@ instance Data.ProtoLens.Message LeaderKey where
 data LeaderRequest = LeaderRequest{_LeaderRequest'name ::
                                    !Data.ByteString.ByteString,
                                    _LeaderRequest'_unknownFields :: !Data.ProtoLens.FieldSet}
-                       deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f LeaderRequest x a, a ~ b) =>
-         Lens.Labels.HasLens f LeaderRequest LeaderRequest x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderRequest "name"
+                       deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show LeaderRequest where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' LeaderRequest "name"
            (Data.ByteString.ByteString)
          where
         lensOf' _
@@ -340,10 +350,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _LeaderRequest'name
                  (\ x__ y__ -> x__{_LeaderRequest'name = y__}))
               Prelude.id
-instance Data.Default.Class.Default LeaderRequest where
-        def
-          = LeaderRequest{_LeaderRequest'name = Data.ProtoLens.fieldDefault,
-                          _LeaderRequest'_unknownFields = ([])}
 instance Data.ProtoLens.Message LeaderRequest where
         messageName _ = Data.Text.pack "v3electionpb.LeaderRequest"
         fieldsByTag
@@ -352,7 +358,7 @@ instance Data.ProtoLens.Message LeaderRequest where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "name")))
                       :: Data.ProtoLens.FieldDescriptor LeaderRequest
               in
@@ -360,6 +366,14 @@ instance Data.ProtoLens.Message LeaderRequest where
         unknownFields
           = Lens.Family2.Unchecked.lens _LeaderRequest'_unknownFields
               (\ x__ y__ -> x__{_LeaderRequest'_unknownFields = y__})
+        defMessage
+          = LeaderRequest{_LeaderRequest'name = Data.ProtoLens.fieldDefault,
+                          _LeaderRequest'_unknownFields = ([])}
+instance Control.DeepSeq.NFData LeaderRequest where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_LeaderRequest'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_LeaderRequest'name x__) (()))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.header' @:: Lens' LeaderResponse
@@ -377,22 +391,21 @@ data LeaderResponse = LeaderResponse{_LeaderResponse'header ::
                                      _LeaderResponse'kv ::
                                      !(Prelude.Maybe Proto.Etcd.Mvcc.Mvccpb.Kv.KeyValue),
                                      _LeaderResponse'_unknownFields :: !Data.ProtoLens.FieldSet}
-                        deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f LeaderResponse x a, a ~ b) =>
-         Lens.Labels.HasLens f LeaderResponse LeaderResponse x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderResponse "header"
+                        deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show LeaderResponse where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' LeaderResponse "header"
            (Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _LeaderResponse'header
                  (\ x__ y__ -> x__{_LeaderResponse'header = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderResponse "maybe'header"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' LeaderResponse "maybe'header"
            (Prelude.Maybe
               Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
@@ -401,17 +414,15 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _LeaderResponse'header
                  (\ x__ y__ -> x__{_LeaderResponse'header = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderResponse "kv"
+instance Lens.Labels.HasLens' LeaderResponse "kv"
            (Proto.Etcd.Mvcc.Mvccpb.Kv.KeyValue)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _LeaderResponse'kv
                  (\ x__ y__ -> x__{_LeaderResponse'kv = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f LeaderResponse "maybe'kv"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' LeaderResponse "maybe'kv"
            (Prelude.Maybe Proto.Etcd.Mvcc.Mvccpb.Kv.KeyValue)
          where
         lensOf' _
@@ -419,11 +430,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _LeaderResponse'kv
                  (\ x__ y__ -> x__{_LeaderResponse'kv = y__}))
               Prelude.id
-instance Data.Default.Class.Default LeaderResponse where
-        def
-          = LeaderResponse{_LeaderResponse'header = Prelude.Nothing,
-                           _LeaderResponse'kv = Prelude.Nothing,
-                           _LeaderResponse'_unknownFields = ([])}
 instance Data.ProtoLens.Message LeaderResponse where
         messageName _ = Data.Text.pack "v3electionpb.LeaderResponse"
         fieldsByTag
@@ -433,7 +439,7 @@ instance Data.ProtoLens.Message LeaderResponse where
                          Data.ProtoLens.FieldTypeDescriptor
                            Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'header")))
                       :: Data.ProtoLens.FieldDescriptor LeaderResponse
                 kv__field_descriptor
@@ -442,7 +448,7 @@ instance Data.ProtoLens.Message LeaderResponse where
                          Data.ProtoLens.FieldTypeDescriptor
                            Proto.Etcd.Mvcc.Mvccpb.Kv.KeyValue)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'kv")))
                       :: Data.ProtoLens.FieldDescriptor LeaderResponse
               in
@@ -452,6 +458,16 @@ instance Data.ProtoLens.Message LeaderResponse where
         unknownFields
           = Lens.Family2.Unchecked.lens _LeaderResponse'_unknownFields
               (\ x__ y__ -> x__{_LeaderResponse'_unknownFields = y__})
+        defMessage
+          = LeaderResponse{_LeaderResponse'header = Prelude.Nothing,
+                           _LeaderResponse'kv = Prelude.Nothing,
+                           _LeaderResponse'_unknownFields = ([])}
+instance Control.DeepSeq.NFData LeaderResponse where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_LeaderResponse'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_LeaderResponse'header x__)
+                   (Control.DeepSeq.deepseq (_LeaderResponse'kv x__) (())))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.leader' @:: Lens' ProclaimRequest LeaderKey@
@@ -462,21 +478,20 @@ data ProclaimRequest = ProclaimRequest{_ProclaimRequest'leader ::
                                        !(Prelude.Maybe LeaderKey),
                                        _ProclaimRequest'value :: !Data.ByteString.ByteString,
                                        _ProclaimRequest'_unknownFields :: !Data.ProtoLens.FieldSet}
-                         deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f ProclaimRequest x a, a ~ b) =>
-         Lens.Labels.HasLens f ProclaimRequest ProclaimRequest x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ProclaimRequest "leader" (LeaderKey)
+                         deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show ProclaimRequest where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' ProclaimRequest "leader" (LeaderKey)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _ProclaimRequest'leader
                  (\ x__ y__ -> x__{_ProclaimRequest'leader = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ProclaimRequest "maybe'leader"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' ProclaimRequest "maybe'leader"
            (Prelude.Maybe LeaderKey)
          where
         lensOf' _
@@ -484,8 +499,7 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _ProclaimRequest'leader
                  (\ x__ y__ -> x__{_ProclaimRequest'leader = y__}))
               Prelude.id
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ProclaimRequest "value"
+instance Lens.Labels.HasLens' ProclaimRequest "value"
            (Data.ByteString.ByteString)
          where
         lensOf' _
@@ -493,11 +507,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _ProclaimRequest'value
                  (\ x__ y__ -> x__{_ProclaimRequest'value = y__}))
               Prelude.id
-instance Data.Default.Class.Default ProclaimRequest where
-        def
-          = ProclaimRequest{_ProclaimRequest'leader = Prelude.Nothing,
-                            _ProclaimRequest'value = Data.ProtoLens.fieldDefault,
-                            _ProclaimRequest'_unknownFields = ([])}
 instance Data.ProtoLens.Message ProclaimRequest where
         messageName _ = Data.Text.pack "v3electionpb.ProclaimRequest"
         fieldsByTag
@@ -506,7 +515,7 @@ instance Data.ProtoLens.Message ProclaimRequest where
                       (Data.ProtoLens.MessageField Data.ProtoLens.MessageType ::
                          Data.ProtoLens.FieldTypeDescriptor LeaderKey)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'leader")))
                       :: Data.ProtoLens.FieldDescriptor ProclaimRequest
                 value__field_descriptor
@@ -514,7 +523,7 @@ instance Data.ProtoLens.Message ProclaimRequest where
                       (Data.ProtoLens.ScalarField Data.ProtoLens.BytesField ::
                          Data.ProtoLens.FieldTypeDescriptor Data.ByteString.ByteString)
                       (Data.ProtoLens.PlainField Data.ProtoLens.Optional
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "value")))
                       :: Data.ProtoLens.FieldDescriptor ProclaimRequest
               in
@@ -524,6 +533,16 @@ instance Data.ProtoLens.Message ProclaimRequest where
         unknownFields
           = Lens.Family2.Unchecked.lens _ProclaimRequest'_unknownFields
               (\ x__ y__ -> x__{_ProclaimRequest'_unknownFields = y__})
+        defMessage
+          = ProclaimRequest{_ProclaimRequest'leader = Prelude.Nothing,
+                            _ProclaimRequest'value = Data.ProtoLens.fieldDefault,
+                            _ProclaimRequest'_unknownFields = ([])}
+instance Control.DeepSeq.NFData ProclaimRequest where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_ProclaimRequest'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_ProclaimRequest'leader x__)
+                   (Control.DeepSeq.deepseq (_ProclaimRequest'value x__) (())))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.header' @:: Lens' ProclaimResponse
@@ -538,22 +557,21 @@ data ProclaimResponse = ProclaimResponse{_ProclaimResponse'header
                                              Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader),
                                          _ProclaimResponse'_unknownFields ::
                                          !Data.ProtoLens.FieldSet}
-                          deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f ProclaimResponse x a, a ~ b) =>
-         Lens.Labels.HasLens f ProclaimResponse ProclaimResponse x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ProclaimResponse "header"
+                          deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show ProclaimResponse where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' ProclaimResponse "header"
            (Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _ProclaimResponse'header
                  (\ x__ y__ -> x__{_ProclaimResponse'header = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ProclaimResponse "maybe'header"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' ProclaimResponse "maybe'header"
            (Prelude.Maybe
               Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
@@ -562,10 +580,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _ProclaimResponse'header
                  (\ x__ y__ -> x__{_ProclaimResponse'header = y__}))
               Prelude.id
-instance Data.Default.Class.Default ProclaimResponse where
-        def
-          = ProclaimResponse{_ProclaimResponse'header = Prelude.Nothing,
-                             _ProclaimResponse'_unknownFields = ([])}
 instance Data.ProtoLens.Message ProclaimResponse where
         messageName _ = Data.Text.pack "v3electionpb.ProclaimResponse"
         fieldsByTag
@@ -575,7 +589,7 @@ instance Data.ProtoLens.Message ProclaimResponse where
                          Data.ProtoLens.FieldTypeDescriptor
                            Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'header")))
                       :: Data.ProtoLens.FieldDescriptor ProclaimResponse
               in
@@ -584,6 +598,14 @@ instance Data.ProtoLens.Message ProclaimResponse where
         unknownFields
           = Lens.Family2.Unchecked.lens _ProclaimResponse'_unknownFields
               (\ x__ y__ -> x__{_ProclaimResponse'_unknownFields = y__})
+        defMessage
+          = ProclaimResponse{_ProclaimResponse'header = Prelude.Nothing,
+                             _ProclaimResponse'_unknownFields = ([])}
+instance Control.DeepSeq.NFData ProclaimResponse where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_ProclaimResponse'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_ProclaimResponse'header x__) (()))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.leader' @:: Lens' ResignRequest LeaderKey@
@@ -592,21 +614,20 @@ instance Data.ProtoLens.Message ProclaimResponse where
 data ResignRequest = ResignRequest{_ResignRequest'leader ::
                                    !(Prelude.Maybe LeaderKey),
                                    _ResignRequest'_unknownFields :: !Data.ProtoLens.FieldSet}
-                       deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f ResignRequest x a, a ~ b) =>
-         Lens.Labels.HasLens f ResignRequest ResignRequest x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ResignRequest "leader" (LeaderKey)
+                       deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show ResignRequest where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' ResignRequest "leader" (LeaderKey)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _ResignRequest'leader
                  (\ x__ y__ -> x__{_ResignRequest'leader = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ResignRequest "maybe'leader"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' ResignRequest "maybe'leader"
            (Prelude.Maybe LeaderKey)
          where
         lensOf' _
@@ -614,10 +635,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _ResignRequest'leader
                  (\ x__ y__ -> x__{_ResignRequest'leader = y__}))
               Prelude.id
-instance Data.Default.Class.Default ResignRequest where
-        def
-          = ResignRequest{_ResignRequest'leader = Prelude.Nothing,
-                          _ResignRequest'_unknownFields = ([])}
 instance Data.ProtoLens.Message ResignRequest where
         messageName _ = Data.Text.pack "v3electionpb.ResignRequest"
         fieldsByTag
@@ -626,7 +643,7 @@ instance Data.ProtoLens.Message ResignRequest where
                       (Data.ProtoLens.MessageField Data.ProtoLens.MessageType ::
                          Data.ProtoLens.FieldTypeDescriptor LeaderKey)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'leader")))
                       :: Data.ProtoLens.FieldDescriptor ResignRequest
               in
@@ -635,6 +652,14 @@ instance Data.ProtoLens.Message ResignRequest where
         unknownFields
           = Lens.Family2.Unchecked.lens _ResignRequest'_unknownFields
               (\ x__ y__ -> x__{_ResignRequest'_unknownFields = y__})
+        defMessage
+          = ResignRequest{_ResignRequest'leader = Prelude.Nothing,
+                          _ResignRequest'_unknownFields = ([])}
+instance Control.DeepSeq.NFData ResignRequest where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_ResignRequest'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_ResignRequest'leader x__) (()))
 {- | Fields :
 
     * 'Proto.Etcd.Etcdserver.Api.V3election.V3electionpb.V3election_Fields.header' @:: Lens' ResignResponse
@@ -647,22 +672,21 @@ data ResignResponse = ResignResponse{_ResignResponse'header ::
                                      !(Prelude.Maybe
                                          Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader),
                                      _ResignResponse'_unknownFields :: !Data.ProtoLens.FieldSet}
-                        deriving (Prelude.Show, Prelude.Eq, Prelude.Ord)
-instance (Lens.Labels.HasLens' f ResignResponse x a, a ~ b) =>
-         Lens.Labels.HasLens f ResignResponse ResignResponse x a b
-         where
-        lensOf = Lens.Labels.lensOf'
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ResignResponse "header"
+                        deriving (Prelude.Eq, Prelude.Ord)
+instance Prelude.Show ResignResponse where
+        showsPrec _ __x __s
+          = Prelude.showChar '{'
+              (Prelude.showString (Data.ProtoLens.showMessageShort __x)
+                 (Prelude.showChar '}' __s))
+instance Lens.Labels.HasLens' ResignResponse "header"
            (Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
         lensOf' _
           = (Prelude..)
               (Lens.Family2.Unchecked.lens _ResignResponse'header
                  (\ x__ y__ -> x__{_ResignResponse'header = y__}))
-              (Data.ProtoLens.maybeLens Data.Default.Class.def)
-instance Prelude.Functor f =>
-         Lens.Labels.HasLens' f ResignResponse "maybe'header"
+              (Data.ProtoLens.maybeLens Data.ProtoLens.defMessage)
+instance Lens.Labels.HasLens' ResignResponse "maybe'header"
            (Prelude.Maybe
               Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
          where
@@ -671,10 +695,6 @@ instance Prelude.Functor f =>
               (Lens.Family2.Unchecked.lens _ResignResponse'header
                  (\ x__ y__ -> x__{_ResignResponse'header = y__}))
               Prelude.id
-instance Data.Default.Class.Default ResignResponse where
-        def
-          = ResignResponse{_ResignResponse'header = Prelude.Nothing,
-                           _ResignResponse'_unknownFields = ([])}
 instance Data.ProtoLens.Message ResignResponse where
         messageName _ = Data.Text.pack "v3electionpb.ResignResponse"
         fieldsByTag
@@ -684,7 +704,7 @@ instance Data.ProtoLens.Message ResignResponse where
                          Data.ProtoLens.FieldTypeDescriptor
                            Proto.Etcd.Etcdserver.Etcdserverpb.Rpc.ResponseHeader)
                       (Data.ProtoLens.OptionalField
-                         (Lens.Labels.lensOf
+                         (Lens.Labels.lensOf'
                             ((Lens.Labels.proxy#) :: (Lens.Labels.Proxy#) "maybe'header")))
                       :: Data.ProtoLens.FieldDescriptor ResignResponse
               in
@@ -693,6 +713,14 @@ instance Data.ProtoLens.Message ResignResponse where
         unknownFields
           = Lens.Family2.Unchecked.lens _ResignResponse'_unknownFields
               (\ x__ y__ -> x__{_ResignResponse'_unknownFields = y__})
+        defMessage
+          = ResignResponse{_ResignResponse'header = Prelude.Nothing,
+                           _ResignResponse'_unknownFields = ([])}
+instance Control.DeepSeq.NFData ResignResponse where
+        rnf
+          = \ x__ ->
+              Control.DeepSeq.deepseq (_ResignResponse'_unknownFields x__)
+                (Control.DeepSeq.deepseq (_ResignResponse'header x__) (()))
 data Election = Election{}
                   deriving ()
 instance Data.ProtoLens.Service.Types.Service Election where
