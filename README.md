@@ -1,3 +1,10 @@
+# THIS REPO IS MOVING
+
+NOTE: we'll be moving the code in this repository to https://github.com/haskell-grpc-native .
+
+
+
+
 # gRPC etcd client
 
 This repository offers a native Haskell client to etcd over gRPC.
